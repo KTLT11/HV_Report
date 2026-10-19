@@ -15,6 +15,8 @@ export type AdminCtx = {
   setDirty: (b: boolean) => void
   listUi: { q: string; status: string }
   setListUi: (v: { q: string; status: string }) => void
+  groupOf: (storeId: number) => number
+  setGroup: (storeId: number, group: number) => void
 }
 export const Ctx = createContext<AdminCtx>(null as unknown as AdminCtx)
 export const useAdmin = () => useContext(Ctx)

@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Check, Gauge, LayoutDashboard, LogOut, Menu, PanelLeftClose, PanelLeftOpen, SlidersHorizontal, Target, X } from 'lucide-react'
+import { Check, Gauge, LayoutDashboard, Layers, LogOut, Menu, PackageSearch, PanelLeftClose, PanelLeftOpen, SlidersHorizontal, Target, Wallet, X } from 'lucide-react'
 import logo from '../imports/image.png'
 import type { Route } from '../common'
-import { TARGET_PERIOD, cfgKey, genCfg, type KpiId, type Page, type StoreCfg } from './data'
+import { STORES, TARGET_PERIOD, cfgKey, genCfg, type KpiId, type Page, type StoreCfg } from './data'
 import { Btn, Ctx, Modal, cx, type AdminCtx } from './ui'
 import Overview from './Overview'
 import TargetList from './TargetList'
 import StoreDetail from './StoreDetail'
 import Threshold from './Threshold'
 import KpiManage from './KpiManage'
+import StoreGroups from './StoreGroups'
+import StockReport from './StockReport'
+import PayrollSummary from './PayrollSummary'
 import Notifications, { type NotiAction } from './Notifications'
 
 const NAV: { group: string; items: { page: Page; label: string; icon: typeof Target }[] }[] = [
@@ -16,6 +19,8 @@ const NAV: { group: string; items: { page: Page; label: string; icon: typeof Tar
   { group: 'KPI', items: [{ page: { name: 'kpis' }, label: 'Quản lý KPI', icon: Gauge }] },
   { group: 'Target', items: [{ page: { name: 'target' }, label: 'Cấu hình Target', icon: Target }] },
   { group: 'Đánh giá', items: [{ page: { name: 'threshold' }, label: 'Cấu hình đánh giá', icon: SlidersHorizontal }] },
+  { group: 'Phân loại', items: [{ page: { name: 'groups' }, label: 'Nhóm quầy', icon: Layers }] },
+  { group: 'Báo cáo', items: [{ page: { name: 'stock' }, label: 'Hàng tồn chưa bán', icon: PackageSearch }, { page: { name: 'payroll' }, label: 'Tổng hợp lương', icon: Wallet }] },
 ]
 
 function Soon({ title }: { title: string }) {
@@ -72,6 +77,7 @@ export default function Admin({ exit }: { exit: (r: Route) => void }) {
   const [period, setPeriod] = useState(TARGET_PERIOD)
   const [kpi, setKpi] = useState<KpiId>('qty')
   const [over, setOver] = useState<Record<string, StoreCfg>>({})
+  const [groupOver, setGroupOver] = useState<Record<number, number>>({})
   const [listUi, setListUi] = useState({ q: '', status: 'all' })
   const [autoImport, setAutoImport] = useState(false)
   const [drawer, setDrawer] = useState(false)
@@ -91,6 +97,8 @@ export default function Admin({ exit }: { exit: (r: Route) => void }) {
   const cfgOf = useCallback<AdminCtx['cfgOf']>((p, k, id) => over[cfgKey(p, k, id)] ?? genCfg(p, k, id), [over])
   const saveCfg = useCallback<AdminCtx['saveCfg']>((p, k, id, cfg) => setOver((o) => ({ ...o, [cfgKey(p, k, id)]: cfg })), [])
   const setDirty = useCallback((b: boolean) => { dirty.current = b }, [])
+  const groupOf = useCallback<AdminCtx['groupOf']>((id) => groupOver[id] ?? STORES[id].group, [groupOver])
+  const setGroup = useCallback<AdminCtx['setGroup']>((id, group) => setGroupOver((o) => ({ ...o, [id]: group })), [])
 
   useEffect(() => {
     const h = (e: BeforeUnloadEvent) => { if (dirty.current) e.preventDefault() }
@@ -111,7 +119,7 @@ export default function Admin({ exit }: { exit: (r: Route) => void }) {
   const switchRole = () => guard(() => exit({ page: 'overview' }))
   const logout = () => guard(() => exit({ page: 'login' }))
 
-  const ctx: AdminCtx = { period, kpi, setPeriod, setKpi, go, cfgOf, saveCfg, toast, setDirty, listUi, setListUi }
+  const ctx: AdminCtx = { period, kpi, setPeriod, setKpi, go, cfgOf, saveCfg, toast, setDirty, listUi, setListUi, groupOf, setGroup }
 
   return (
     <Ctx.Provider value={ctx}>
@@ -142,6 +150,9 @@ export default function Admin({ exit }: { exit: (r: Route) => void }) {
               {page.name === 'target' && <TargetList autoImport={autoImport} onAutoImported={() => setAutoImport(false)} />}
               {page.name === 'threshold' && <Threshold />}
               {page.name === 'kpis' && <KpiManage />}
+              {page.name === 'groups' && <StoreGroups />}
+              {page.name === 'stock' && <StockReport />}
+              {page.name === 'payroll' && <PayrollSummary />}
               {page.name === 'store' && <StoreDetail key={`${page.id}|${period}|${kpi}`} id={page.id} />}
             </div>
           </main>
