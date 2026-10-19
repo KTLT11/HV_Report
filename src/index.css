@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400..700&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --color-page: #ffffff;
+  --color-ink: #231f20;
+  --color-mute: #6b6465;
+  --color-line: #e9e4e1;
+  --color-brand: #c72128;
+  --color-brand-mid: #d94048;
+  --color-brand-deep: #a31a20;
+  --color-tint: #fcf2f1;
+  --color-sand: #f5f4f2;
+  --color-risk-bg: #fdeeec;
+  --color-tint-2: #f1eeec;
+  --color-lv1: #e0392b;
+  --color-lv2: #ee8a2b;
+  --color-lv3: #e3b23c;
+  --color-lv4: #8dc8a0;
+  --color-lv5: #1e7f5c;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+  line-height: 1.55;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes qv-fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes qv-right { from { transform: translateX(32px); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes qv-up { from { transform: translateY(40px); opacity: 0 } to { transform: none; opacity: 1 } }
+.qv-fade { animation: qv-fade .18s ease-out }
+.qv-panel { animation: qv-up .22s ease-out }
+@media (min-width: 768px) { .qv-panel { animation: qv-right .22s ease-out } }
+.adm-pop { animation: qv-up .2s ease-out }
