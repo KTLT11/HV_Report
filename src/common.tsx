@@ -13,7 +13,7 @@ export const LEVELS = [
 ]
 export const TOTAL = LEVELS.reduce((s, l) => s + l.count, 0)
 export const PERIODS = ['Hôm nay', 'Tuần này', 'Tháng 10/2026']
-export const NAV = ['Tổng quan', 'Sản phẩm', 'Báo cáo KPI', 'Hàng tồn chưa bán', 'Tổng kết chỉ tiêu']
+export const NAV = ['Tổng quan', 'Sản phẩm', 'Báo cáo KPI', 'Hàng tồn chưa bán', 'Hoa hồng']
 
 export const TAGS: Record<string, { icon: typeof Star; cls: string }> = {
   'Cận date': { icon: CalendarClock, cls: 'bg-lv1/10 text-[#c22d20]' },
@@ -150,7 +150,7 @@ export function Sheet({ onClose, eyebrow, title, sub, lead, badges, cta, onCta, 
   )
 }
 
-export type Route = { page: 'overview' } | { page: 'products'; mode: 'all' | 'kpi' | 'expiry' | 'key' | 'comm'; level?: string; cat?: string } | { page: 'detail'; id: number } | { page: 'report' } | { page: 'inventory' } | { page: 'summary' } | { page: 'staff' } | { page: 'login' } | { page: 'admin' }
+export type Route = { page: 'overview' } | { page: 'products'; mode: 'all' | 'kpi' | 'expiry' | 'key' | 'comm'; level?: string; cat?: string } | { page: 'detail'; id: number } | { page: 'report' } | { page: 'inventory' } | { page: 'commission' } | { page: 'staff' } | { page: 'login' } | { page: 'admin' }
 
 export function TopNav({ active, go }: { active: number; go: (r: Route) => void }) {
   const [mob, setMob] = useState(false)
@@ -161,7 +161,7 @@ export function TopNav({ active, go }: { active: number; go: (r: Route) => void 
     if (i === 1) go({ page: 'products', mode: 'all' })
     if (i === 2) go({ page: 'report' })
     if (i === 3) go({ page: 'inventory' })
-    if (i === 4) go({ page: 'summary' })
+    if (i === 4) go({ page: 'commission' })
   }
   return (
     <div className="bg-brand text-white relative max-md:pt-[max(env(safe-area-inset-top),3.25rem)]">

@@ -62,6 +62,15 @@ export default function StaffDashboard({ go, period, setPeriod }: { go: (r: Rout
         <p className="mt-3 font-medium">{result.actual >= result.target ? `Vượt mục tiêu ${formatKpi(result.actual - result.target, kpi)}` : `Còn ${formatKpi(result.target - result.actual, kpi)} để đạt mục tiêu`}</p>
       </section>
 
+      <section aria-label="Khách tích điểm">
+        <div className="flex items-center gap-2.5"><Users className="size-5 text-brand" /><h2 className="text-xl font-semibold">Khách tích điểm · cá nhân</h2></div>
+        <p className="mt-1 text-sm text-mute">Dữ liệu mẫu cùng kỳ {period}. Tử số là số bill có khách tích điểm; mẫu số là tổng số khách đã bán.</p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-xl border border-line bg-white p-5"><p className="text-sm text-mute">Bill có khách tích điểm</p><p className="mt-2 text-[28px] font-semibold">{formatNumber(loyalty.personal.bills)}</p></div>
+          <div className="rounded-xl border border-line bg-white p-5"><p className="text-sm text-mute">Khách đã bán trong tháng</p><p className="mt-2 text-[28px] font-semibold">{formatNumber(loyalty.personal.customers)}</p></div>
+        </div>
+      </section>
+
       <section aria-label="Xếp hạng">
         <div className="flex items-center gap-2.5"><Trophy className="size-5 text-brand" /><h2 className="text-xl font-semibold">Xếp hạng · Top 5 toàn chuỗi</h2></div>
         <p className="mt-1 text-sm text-mute">Xếp theo tỷ lệ hoàn thành KPI {KPI_OPTIONS.find(([key]) => key === kpi)?.[1]?.toLowerCase()} trong {period}. Đơn vị: {kpiUnit(kpi)}.</p>
@@ -70,8 +79,12 @@ export default function StaffDashboard({ go, period, setPeriod }: { go: (r: Rout
             <li key={person.id} className="flex flex-wrap items-center gap-4 px-5 py-4">
               <span className="w-9 text-xl font-semibold text-brand">{i + 1}</span>
               <div className="flex-1 min-w-[200px]"><b>{person.name}</b><p className="text-sm text-mute">{staffStore(person.storeId).name} · {staffStore(person.storeId).location}</p></div>
-              <div className="text-right"><b>{person.pct}%</b><p className="text-sm text-mute">{formatKpi(person.actual, kpi)} / {formatKpi(person.target, kpi)}</p></div>
-              {i === 0 && <button onClick={() => setLeaderOpen(true)} className="min-h-11 px-3 text-brand font-semibold">Xem chi tiết</button>}
+              {i === 0 && (
+                <>
+                  <div className="text-right"><b>{person.pct}%</b><p className="text-sm text-mute">{formatKpi(person.actual, kpi)} / {formatKpi(person.target, kpi)}</p></div>
+                  <button onClick={() => setLeaderOpen(true)} className="min-h-11 px-3 text-brand font-semibold">Xem chi tiết</button>
+                </>
+              )}
             </li>
           ))}
         </ol>
@@ -91,23 +104,6 @@ export default function StaffDashboard({ go, period, setPeriod }: { go: (r: Rout
             <tbody>{commission.map(r => <tr key={r.product.id} className="border-t border-line"><td className="px-4 py-3"><b>{r.product.name}</b><span className="block text-xs text-mute">{r.product.sku}</span></td><td className="px-4 py-3 text-right">{r.quantity} SP</td><td className="px-4 py-3 text-right font-semibold">{formatMoney(r.commission)}</td></tr>)}</tbody>
             <tfoot><tr className="border-t border-line bg-sand font-semibold"><td className="px-4 py-3">Tổng kỳ</td><td /><td className="px-4 py-3 text-right">{formatMoney(total)}</td></tr></tfoot>
           </table>
-        </div>
-      </section>
-
-      <section aria-label="Khách tích điểm">
-        <div className="flex items-center gap-2.5"><Users className="size-5 text-brand" /><h2 className="text-xl font-semibold">Khách tích điểm</h2></div>
-        <p className="mt-1 text-sm text-mute">Dữ liệu mẫu cùng kỳ {period}. Tử số là số bill có khách tích điểm; mẫu số là tổng số khách đã bán. Hai đại lượng được giữ đúng tên theo yêu cầu demo.</p>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {[['Cá nhân', loyalty.personal], ['Toàn quầy', loyalty.store]].map(([label, values]) => {
-            const v = values as typeof loyalty.personal
-            return (
-              <div key={String(label)} className="rounded-xl border border-line bg-white p-6">
-                <p className="text-sm font-semibold text-brand">{String(label)}</p>
-                <p className="mt-3 text-[30px] font-semibold">{formatNumber(v.bills)} <span className="text-base font-normal text-mute">bill có khách tích điểm</span></p>
-                <p className="mt-2 text-[22px] font-semibold">{formatNumber(v.customers)} <span className="text-base font-normal text-mute">khách đã bán trong tháng</span></p>
-              </div>
-            )
-          })}
         </div>
       </section>
     </main>

@@ -5,7 +5,9 @@ import {
   LevelBadge,
   PERIODS,
   PeriodSelect,
+  ProductThumb,
   SectionHead,
+  Sheet,
   TopNav,
   type Route,
 } from "./common"
@@ -18,7 +20,7 @@ import { levelOf, pctOf } from "./data"
 import { DEFAULT_LEVELS, levelFor, levelIndex, renderMsg, type Level } from "./levels"
 import { DEMO_STORE, USER_PERIODS, productsFor, storePos, storeTotals, rate, formatMoney, type PeriodKey } from "./userData"
 import Inventory from "./Inventory"
-import Summary from "./Summary"
+import Commission from "./Commission"
 import StaffDashboard from "./Staff"
 
 
@@ -298,6 +300,50 @@ function FocusProducts({ go, period }: { go: (route: Route) => void; period: Per
   )
 }
 
+function TargetSummary({ period }: { period: PeriodKey }) {
+  const [open, setOpen] = useState(false)
+  const rows = productsFor(period).filter((p) => p.focus)
+  const met = rows.filter((p) => p.actual >= p.target).length
+
+  return (
+    <section>
+      <SectionHead title="Tổng kết chỉ tiêu quầy" sub="Mã hàng cần đẩy trong kỳ và mức độ đạt mục tiêu" />
+      <div className="grid gap-4 sm:grid-cols-3">
+        {[["Mã hàng cần đẩy", rows.length], ["Mã đạt mục tiêu", met], ["Mã chưa đạt", rows.length - met]].map(([label, n]) => (
+          <div key={label} className="rounded-xl border border-line bg-white p-5">
+            <p className="text-sm text-mute">{label} · quầy</p>
+            <p className="mt-2 text-[32px] font-semibold">{n}</p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 rounded-xl bg-sand p-5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p className="font-semibold">{met}/{rows.length} mã hàng cần đẩy đã đạt mục tiêu</p>
+          <p className="mt-1 text-sm text-mute">Trạng thái tổng hợp: {met === rows.length ? "Đã đạt tất cả" : "Còn mã chưa đạt"}</p>
+        </div>
+        <button onClick={() => setOpen(true)} className="min-h-11 rounded-lg bg-brand px-5 font-semibold text-white hover:bg-brand-deep">Xem danh sách mã</button>
+      </div>
+      {open && (
+        <Sheet eyebrow="Danh sách mã cần đẩy" title={USER_PERIODS.find((p) => p.key === period)?.label} sub={DEMO_STORE.name} cta="Đóng" onCta={() => setOpen(false)} onClose={() => setOpen(false)}>
+          <p className="mb-3 text-sm text-mute">{rows.length} mã hàng · {met} mã đạt mục tiêu</p>
+          <ul className="divide-y divide-line">
+            {rows.map((p) => (
+              <li key={p.id} className="flex items-center gap-3 py-3">
+                <ProductThumb i={p.thumb} size={42} />
+                <span className="min-w-0 flex-1">
+                  <b className="block truncate">{p.name}</b>
+                  <span className="text-xs text-mute">{p.sku} · {p.actual}/{p.target} SP · {rate(p.actual, p.target)}%</span>
+                </span>
+                <span className={p.actual >= p.target ? "text-[#1e7f5c] font-semibold" : "text-[#c22d20] font-semibold"}>{p.actual >= p.target ? "Đạt" : "Chưa đạt"}</span>
+              </li>
+            ))}
+          </ul>
+        </Sheet>
+      )}
+    </section>
+  )
+}
+
 function Overview({ go, period, setPeriod }: { go: (route: Route) => void; period: PeriodKey; setPeriod: (p: PeriodKey) => void }) {
   const pos = storePos(period)
 
@@ -324,6 +370,7 @@ function Overview({ go, period, setPeriod }: { go: (route: Route) => void; perio
           <div className="rounded-xl border border-line bg-white p-5"><p className="text-sm text-mute">Lượng khách bình quân mỗi ngày · quầy</p><p className="mt-2 text-[26px] font-semibold">{formatNumber(pos.avgCustomers)}<span className="text-base text-mute"> khách/ngày</span></p><p className="mt-1 text-xs text-mute">Dữ liệu POS mô phỏng · {period}</p></div>
         </section>
         <FocusProducts go={go} period={period} />
+        <TargetSummary period={period} />
       </main>
     </div>
   )
@@ -353,7 +400,7 @@ export default function App() {
   if (route.page === "report")
     return <Report key={JSON.stringify(route)} go={go} period={period} setPeriod={setPeriod} />
   if (route.page === "inventory") return <Inventory go={go} period={period} setPeriod={setPeriod} />
-  if (route.page === "summary") return <Summary go={go} period={period} setPeriod={setPeriod} />
+  if (route.page === "commission") return <Commission go={go} period={period} setPeriod={setPeriod} />
   if (route.page === "detail")
     return <ProductDetail key={route.id} id={route.id} go={go} period={period} />
   return <ProductList key={JSON.stringify(route)} route={route} go={go} period={period} setPeriod={setPeriod} />

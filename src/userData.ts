@@ -86,13 +86,18 @@ export const STAFF = [
   { id: 'huy', name: 'Bùi Quang Huy', storeId: STORES[6].id },
   { id: 'mai', name: 'Ngô Thanh Mai', storeId: STORES[7].id },
   { id: 'son', name: 'Hoàng Hải Sơn', storeId: STORES[8].id },
+  { id: 'duc', name: 'Phạm Văn Đức', storeId: DEMO_STORE.id },
+  { id: 'hoa', name: 'Lê Thị Hoa', storeId: DEMO_STORE.id },
+  { id: 'tuan', name: 'Nguyễn Minh Tuấn', storeId: DEMO_STORE.id },
 ] as const
 export const DEMO_STAFF = STAFF[0]
 export const staffStore = (id: string) => STORES.find(s => s.id === id) ?? DEMO_STORE
+export const storeStaff = (storeId: string) => STAFF.filter(s => s.storeId === storeId)
+const KPI_PCT_POOL = [82, 109, 96, 118, 91, 105, 75, 112, 88]
 export function staffKpi(id: string, key: string, kind: KpiKind) {
   const i = Math.max(0, STAFF.findIndex(s => s.id === id))
   const monthShift = key === '2026-10' ? 0 : -7
-  const pct = [82, 109, 96, 118, 91, 105, 75, 112, 88][(i + (kind === 'rev' ? 3 : 0)) % STAFF.length] + monthShift
+  const pct = KPI_PCT_POOL[(i + (kind === 'rev' ? 3 : 0)) % KPI_PCT_POOL.length] + monthShift
   const target = kind === 'qty' ? 350 + i * 25 : (46 + i * 4) * 1_000_000
   const actual = Math.round(target * pct / 100)
   return { target, actual, pct: rate(actual, target) }
